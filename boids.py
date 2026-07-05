@@ -24,8 +24,9 @@ WHITE = (255, 255, 255)
 class Boid:
     def __init__(self):
         self.radius = 10
-        self.velocityX = random.choice([-3, 3])
-        self.velocityY = random.choice([-3, 3])
+        self.max_speed = 3
+        self.velocityX = random.uniform(-3, 3)
+        self.velocityY = random.uniform(-3, 3)
         self.position = pygame.math.Vector2(
             random.randint(self.radius, WIDTH - self.radius),
             random.randint(self.radius, HEIGHT - self.radius)
@@ -37,9 +38,11 @@ class Boid:
     def movement(self):
         self.position.x += self.velocityX
         self.position.y += self.velocityY
-        
-        boids_listX.append(self.position.x)
-        boids_listY.append(self.position.y)    
+        distanceX = self.position.x - (self.position.x - self.velocityX)
+        distanceY = self.position.y - (self.position.y - self.velocityY)
+        acutal_distance = sqrt(distanceX**2 + distanceY**2)
+        if acutal_distance > self.max_speed:
+            acutal_distance = self.max_speed
 
     def wall_collision(self):
         if self.position.x < self.radius:
@@ -96,7 +99,7 @@ while running:
         boids_listY.append(boid.position.y) 
     
     for boid in boids_list:    
-        boid.separation(300, 10)
+        boid.separation(30, 15)
         boid.wall_collision()
         boid.draw(screen, WHITE)
     
