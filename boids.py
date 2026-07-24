@@ -1,21 +1,23 @@
 import pygame 
 import random
 from math import sqrt
+from pygame.math import Vector2
 
 pygame.init()
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 running = True
 
+# CONSTANTS
 NUM_BOIDS = 25
+BOIDS_SPEED = 1
+FRICTION = 0.85
+BOID_SIGHT = 50
+
 boids_list = []
 boids_listX = []
 boids_listY = []
-
-# Separation
-# Cohesion
-# Alignment  
 
 #COLORS
 BLACK = (0, 0, 0)
@@ -24,33 +26,34 @@ WHITE = (255, 255, 255)
 class Boid:
     def __init__(self):
         self.radius = 10
-        self.max_speed = 3
-        self.velocityX = random.uniform(-3, 3)
-        self.velocityY = random.uniform(-3, 3)
-        self.position = pygame.math.Vector2(
-            random.randint(self.radius, WIDTH - self.radius),
-            random.randint(self.radius, HEIGHT - self.radius)
-        )
+        self.acceleration = Vector2(0, 0)
+        self.velocity = Vector2(0, 0)
+        self.position = Vector2(random.randint(self.radius, WIDTH - self.radius), 
+                                random.randint(self.radius, HEIGHT - self.radius))
+        self.starting_direction = Vector2(0, 0)
+        while self.starting_direction == Vector2(0, 0):
+          self.starting_direction = Vector2(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))
+        
     
     def draw(self, screen, color):
         pygame.draw.circle(screen, color, (int(self.position.x), int(self.position.y)), self.radius)
 
     def movement(self):
-        self.position.x += self.velocityX
-        self.position.y += self.velocityY
-        distanceX = self.position.x - (self.position.x - self.velocityX)
-        distanceY = self.position.y - (self.position.y - self.velocityY)
-        acutal_distance = sqrt(distanceX**2 + distanceY**2)
-        if acutal_distance > self.max_speed:
-            acutal_distance = self.max_speed
+        self.acceleration = self.starting_direction * BOIDS_SPEED
+        self.velocity += self.acceleration
+        self.velocity *= FRICTION
+        self.position += self.velocity
 
     def wall_collision(self):
         if self.position.x < self.radius:
             self.position.x += WIDTH     
+
         elif self.position.x > WIDTH - self.radius:
             self.position.x -= WIDTH
+
         if self.position.y < self.radius:
             self.position.y += HEIGHT
+
         elif self.position.y > HEIGHT - self.radius:
             self.position.y -= HEIGHT       
                               
