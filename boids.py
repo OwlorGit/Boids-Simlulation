@@ -1,6 +1,6 @@
 import pygame 
 import random
-from math import sqrt
+import math
 from pygame.math import Vector2
 
 pygame.init()
@@ -13,11 +13,10 @@ running = True
 NUM_BOIDS = 25
 BOIDS_SPEED = 1
 FRICTION = 0.85
-BOID_SIGHT = 50
+DETECTION_LIMIT = 50
+SEPERATION_FORCE = 0.01
 
 boids_list = []
-boids_listX = []
-boids_listY = []
 
 #COLORS
 BLACK = (0, 0, 0)
@@ -30,16 +29,16 @@ class Boid:
         self.velocity = Vector2(0, 0)
         self.position = Vector2(random.randint(self.radius, WIDTH - self.radius), 
                                 random.randint(self.radius, HEIGHT - self.radius))
-        self.starting_direction = Vector2(0, 0)
-        while self.starting_direction == Vector2(0, 0):
-          self.starting_direction = Vector2(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))
+        self.direction = Vector2(0, 0)
+        while self.direction == Vector2(0, 0):
+          self.direction = Vector2(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))
         
     
     def draw(self, screen, color):
         pygame.draw.circle(screen, color, (int(self.position.x), int(self.position.y)), self.radius)
 
     def movement(self):
-        self.acceleration = self.starting_direction * BOIDS_SPEED
+        self.acceleration = self.direction * BOIDS_SPEED
         self.velocity += self.acceleration
         self.velocity *= FRICTION
         self.position += self.velocity
@@ -47,16 +46,36 @@ class Boid:
     def wall_collision(self):
         if self.position.x < self.radius:
             self.position.x += WIDTH     
-
         elif self.position.x > WIDTH - self.radius:
             self.position.x -= WIDTH
-
         if self.position.y < self.radius:
             self.position.y += HEIGHT
-
         elif self.position.y > HEIGHT - self.radius:
-            self.position.y -= HEIGHT       
-                              
+            self.position.y -= HEIGHT
+
+    def seperation(self, seperation_strength, detection_limit):
+        count = 0
+        sep = Vector2(0, 0)
+
+        for neighbor in boids_list:
+            if neighbor is not self: 
+                distance = (self.position - neighbor.position).length()
+                if 0 < distance < detection_limit:
+                    count += 1
+                    sep += (self.position - neighbor.position) 
+
+        if count > 0: 
+            sep /= count
+            self.direction = sep * seperation_strength
+                        
+
+    def cohesion(self):
+        pass
+
+    def alignement(self):
+        pass
+        
+
 
 for _ in range(NUM_BOIDS):
     boids_list.append(Boid())
@@ -67,19 +86,14 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     
-    screen.fill(BLACK)
-    boids_listX.clear()
-    boids_listY.clear()
-
+    screen.fill(BLACK) 
+    
     for boid in boids_list:
-        boid.movement()
-        boids_listX.append(boid.position.x)
-        boids_listY.append(boid.position.y) 
-    
-    for boid in boids_list:    
+        boid.movement()    
         boid.wall_collision()
+        boid.seperation(SEPERATION_FORCE, DETECTION_LIMIT)
         boid.draw(screen, WHITE)
-    
+   
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
