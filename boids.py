@@ -10,12 +10,15 @@ clock = pygame.time.Clock()
 running = True
 
 # CONSTANTS
-NUM_BOIDS = 25
+NUM_BOIDS = 50
 BOIDS_SPEED = 1
+MAX_ACCELERATION = 0
 FRICTION = 0.85
-DETECTION_LIMIT = 50
-SEPERATION_FORCE = 0.01
+DETECTION_LIMIT = 100
+SEPERATION_FORCE = 0.2
+ALIGNEMENT_FORCE = 0.2
 
+# COHESION_FORCE =
 boids_list = []
 
 #COLORS
@@ -32,6 +35,9 @@ class Boid:
         self.direction = Vector2(0, 0)
         while self.direction == Vector2(0, 0):
           self.direction = Vector2(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))
+
+          if self.direction.length() > 0:
+              self.direction.normalize_ip()
         
     
     def draw(self, screen, color):
@@ -39,6 +45,10 @@ class Boid:
 
     def movement(self):
         self.acceleration = self.direction * BOIDS_SPEED
+
+        if self.acceleration.length() > MAX_ACCELERATION:
+            self.acceleration = self.acceleration.normalize()
+
         self.velocity += self.acceleration
         self.velocity *= FRICTION
         self.position += self.velocity
@@ -59,23 +69,45 @@ class Boid:
 
         for neighbor in boids_list:
             if neighbor is not self: 
-                distance = (self.position - neighbor.position).length()
-                if 0 < distance < detection_limit:
-                    count += 1
-                    sep += (self.position - neighbor.position) 
+                diff = self.position - neighbor.position
+                distance = diff.length()
 
-        if count > 0: 
+                if 0 < distance < detection_limit:
+                    dispersion_force = diff.normalize()
+                    sep += dispersion_force 
+                    count += 1
+                else:
+                    continue
+
+        if count > 0:
             sep /= count
-            self.direction = sep * seperation_strength
-                        
+            if sep.length() > 0:
+                sep = sep.normalize()
+                self.direction += sep * seperation_strength                       
 
     def cohesion(self):
         pass
 
-    def alignement(self):
-        pass
-        
+    def alignement(self, alignement_strength, detection_limit):
+        count = 0
+        align = Vector2(0, 0)
 
+        for neighbor in boids_list:
+            if neighbor is not self:
+                diff = self.position - neighbor.position
+                distance = diff.length()
+
+                if 0 < distance < detection_limit:
+                    align += neighbor.direction
+                    count += 1
+
+        if count > 0:
+            align /= count
+            if align.length() > 0:
+                align = align.normalize()
+                self.direction += align * alignement_strength
+
+        
 
 for _ in range(NUM_BOIDS):
     boids_list.append(Boid())
@@ -92,6 +124,7 @@ while running:
         boid.movement()    
         boid.wall_collision()
         boid.seperation(SEPERATION_FORCE, DETECTION_LIMIT)
+        boid.alignement(ALIGNEMENT_FORCE, DETECTION_LIMIT)
         boid.draw(screen, WHITE)
    
     pygame.display.flip()
