@@ -12,12 +12,12 @@ running = True
 # CONSTANTS
 NUM_BOIDS = 50
 BOIDS_SPEED = 1
-MAX_ACCELERATION = 2
+MAX_ACCELERATION = 3
 FRICTION = 0.85
 DETECTION_LIMIT = 150
 
-SEPERATION_FORCE = 0.2
-ALIGNEMENT_FORCE = 0.2
+SEPERATION_FORCE = 0.8
+ALIGNEMENT_FORCE = 1
 COHESION_FORCE = 3
 
 boids_list = []
@@ -64,69 +64,38 @@ class Boid:
         elif self.position.y > HEIGHT - self.radius:
             self.position.y -= HEIGHT
 
-    def seperation(self, seperation_strength, detection_limit):
+    def physics(self, seperation_strength, alignement_strength, cohesion_strength, detection_limit):
         count = 0
         sep = Vector2(0, 0)
+        align = Vector2(0, 0)
+        coh = Vector2(0, 0)
 
         for neighbor in boids_list:
-            if neighbor is not self: 
+            if neighbor is not self:
                 diff = self.position - neighbor.position
                 distance = diff.length()
 
                 if 0 < distance < detection_limit:
                     dispersion_force = diff.normalize()
-                    sep += dispersion_force 
+                    sep += dispersion_force
+                    align += neighbor.direction
+                    coh += neighbor.position
                     count += 1
-                else:
-                    continue
 
         if count > 0:
             sep /= count
+            align /= count
+            coh /= count
+
             if sep.length() > 0:
                 sep.normalize_ip()
-                self.direction += sep * seperation_strength                       
-
-    def cohesion(self, cohesion_strength, detection_limit):
-        count = 0
-        cohes = Vector2(0, 0)
-        centre_mass = Vector2(0, 0)
-
-        for neighbor in boids_list:
-            if neighbor is not self:
-                diff = self.position - neighbor.position
-                distance = diff.length()
-
-                if 0 < distance < detection_limit:
-                    centre_mass += neighbor.position
-                    count += 1
-
-        if count > 0:
-            centre_mass /= count
-            if centre_mass.length() > 0:
-                centre_mass.normalize_ip()
-                self.direction += centre_mass * cohesion_strength
-            
-
-    def alignement(self, alignement_strength, detection_limit):
-        count = 0
-        align = Vector2(0, 0)
-        pass
-
-        for neighbor in boids_list:
-            if neighbor is not self:
-                diff = self.position - neighbor.position
-                distance = diff.length()
-
-                if 0 < distance < detection_limit:
-                    align += neighbor.direction
-                    count += 1
-
-        if count > 0:
-            align /= count
+                self.direction += sep * seperation_strength
             if align.length() > 0:
-                align.normalize()
+                align.normalize_ip()
                 self.direction += align * alignement_strength
-
+            if coh.length() > 0:
+                coh.normalize_ip()
+                self.direction += coh * cohesion_strength            
         
 
 for _ in range(NUM_BOIDS):
@@ -143,9 +112,7 @@ while running:
     for boid in boids_list:
         boid.movement()    
         boid.wall_collision()
-        boid.seperation(SEPERATION_FORCE, DETECTION_LIMIT)
-        boid.alignement(ALIGNEMENT_FORCE, DETECTION_LIMIT)
-        boid.cohesion(COHESION_FORCE, DETECTION_LIMIT)
+        boid.physics(SEPERATION_FORCE, ALIGNEMENT_FORCE, COHESION_FORCE, DETECTION_LIMIT)
         boid.draw(screen, WHITE)
    
     pygame.display.flip()
