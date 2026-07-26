@@ -12,13 +12,14 @@ running = True
 # CONSTANTS
 NUM_BOIDS = 50
 BOIDS_SPEED = 1
-MAX_ACCELERATION = 0
+MAX_ACCELERATION = 2
 FRICTION = 0.85
-DETECTION_LIMIT = 100
+DETECTION_LIMIT = 150
+
 SEPERATION_FORCE = 0.2
 ALIGNEMENT_FORCE = 0.2
+COHESION_FORCE = 3
 
-# COHESION_FORCE =
 boids_list = []
 
 #COLORS
@@ -44,11 +45,11 @@ class Boid:
         pygame.draw.circle(screen, color, (int(self.position.x), int(self.position.y)), self.radius)
 
     def movement(self):
+        if self.direction.length() > MAX_ACCELERATION:
+            self.direction.normalize_ip()
+            self.direction *= MAX_ACCELERATION
+
         self.acceleration = self.direction * BOIDS_SPEED
-
-        if self.acceleration.length() > MAX_ACCELERATION:
-            self.acceleration = self.acceleration.normalize()
-
         self.velocity += self.acceleration
         self.velocity *= FRICTION
         self.position += self.velocity
@@ -82,15 +83,34 @@ class Boid:
         if count > 0:
             sep /= count
             if sep.length() > 0:
-                sep = sep.normalize()
+                sep.normalize_ip()
                 self.direction += sep * seperation_strength                       
 
-    def cohesion(self):
-        pass
+    def cohesion(self, cohesion_strength, detection_limit):
+        count = 0
+        cohes = Vector2(0, 0)
+        centre_mass = Vector2(0, 0)
+
+        for neighbor in boids_list:
+            if neighbor is not self:
+                diff = self.position - neighbor.position
+                distance = diff.length()
+
+                if 0 < distance < detection_limit:
+                    centre_mass += neighbor.position
+                    count += 1
+
+        if count > 0:
+            centre_mass /= count
+            if centre_mass.length() > 0:
+                centre_mass.normalize_ip()
+                self.direction += centre_mass * cohesion_strength
+            
 
     def alignement(self, alignement_strength, detection_limit):
         count = 0
         align = Vector2(0, 0)
+        pass
 
         for neighbor in boids_list:
             if neighbor is not self:
@@ -104,7 +124,7 @@ class Boid:
         if count > 0:
             align /= count
             if align.length() > 0:
-                align = align.normalize()
+                align.normalize()
                 self.direction += align * alignement_strength
 
         
@@ -125,6 +145,7 @@ while running:
         boid.wall_collision()
         boid.seperation(SEPERATION_FORCE, DETECTION_LIMIT)
         boid.alignement(ALIGNEMENT_FORCE, DETECTION_LIMIT)
+        boid.cohesion(COHESION_FORCE, DETECTION_LIMIT)
         boid.draw(screen, WHITE)
    
     pygame.display.flip()
