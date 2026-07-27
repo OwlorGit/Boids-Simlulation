@@ -4,21 +4,21 @@ import math
 from pygame.math import Vector2
 
 pygame.init()
-WIDTH, HEIGHT = 1280, 720
+WIDTH, HEIGHT = 1600, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 running = True
 
 # CONSTANTS
-NUM_BOIDS = 50
+NUM_BOIDS = 200
 BOIDS_SPEED = 1
-MAX_ACCELERATION = 3
+MAX_ACCELERATION = 2
 FRICTION = 0.85
-DETECTION_LIMIT = 150
 
-SEPERATION_FORCE = 0.8
+DETECTION_LIMIT = 100
+SEPERATION_FORCE = 1
 ALIGNEMENT_FORCE = 1
-COHESION_FORCE = 3
+COHESION_FORCE = 1
 
 boids_list = []
 
@@ -28,7 +28,7 @@ WHITE = (255, 255, 255)
 
 class Boid:
     def __init__(self):
-        self.radius = 10
+        self.radius = 5
         self.acceleration = Vector2(0, 0)
         self.velocity = Vector2(0, 0)
         self.position = Vector2(random.randint(self.radius, WIDTH - self.radius), 
@@ -69,6 +69,7 @@ class Boid:
         sep = Vector2(0, 0)
         align = Vector2(0, 0)
         coh = Vector2(0, 0)
+        center_mass = Vector2(0, 0)
 
         for neighbor in boids_list:
             if neighbor is not self:
@@ -76,23 +77,26 @@ class Boid:
                 distance = diff.length()
 
                 if 0 < distance < detection_limit:
-                    dispersion_force = diff.normalize()
+                    dispersion_force = diff.normalize() / distance
                     sep += dispersion_force
                     align += neighbor.direction
-                    coh += neighbor.position
+                    center_mass += neighbor.position
                     count += 1
 
         if count > 0:
-            sep /= count
-            align /= count
-            coh /= count
 
+            sep /= count
             if sep.length() > 0:
                 sep.normalize_ip()
                 self.direction += sep * seperation_strength
+
+            align /= count
             if align.length() > 0:
                 align.normalize_ip()
                 self.direction += align * alignement_strength
+
+            center_mass /= count 
+            coh = center_mass - self.position
             if coh.length() > 0:
                 coh.normalize_ip()
                 self.direction += coh * cohesion_strength            
