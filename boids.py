@@ -18,6 +18,7 @@ COHESION_FORCE = 1
 # Dimensions
 WIDTH, HEIGHT = 1600, 800
 CELL_SIZE = DETECTION_LIMIT
+CELL_BORDER = 1
 dict_cell = {}
 
 # Colors
@@ -56,7 +57,7 @@ class Boid:
 
     def wall_collision(self):
         if self.position.x < self.radius:
-            self.position.x += WIDTH     
+            self.position.x += WIDTH
         elif self.position.x > WIDTH - self.radius:
             self.position.x -= WIDTH
         if self.position.y < self.radius:
@@ -84,7 +85,6 @@ class Boid:
                     count += 1
 
         if count > 0:
-
             sep /= count
             if sep.length() > 0:
                 sep.normalize_ip()
@@ -101,19 +101,23 @@ class Boid:
                 coh.normalize_ip()
                 self.direction += coh * cohesion_strength            
 
+class Grid():
+    def __init__(self):
+        self.num_row = int(WIDTH / CELL_SIZE)
+        self.num_col = int(HEIGHT / CELL_SIZE)
+        self.cell_size = CELL_SIZE
+        self.cell_border = CELL_BORDER
 
-def grid(row, col, cell_size, border):
-    row = int(row / cell_size)
-    col = int(col / cell_size)
-    
-    for i in range(row):
-        for j in range(col):
-            pygame.draw.rect(screen, LIGHT_GREY, (CELL_SIZE * i, CELL_SIZE * j, CELL_SIZE, CELL_SIZE), border)
-            dict_cell[(i, j)] = {
-                "position_x": CELL_SIZE * i,
-                "position_y": CELL_SIZE * j
-            }
-            
+    def grid_logic(self, process_type):
+        for i in range(self.num_row):
+            for j in range(self.num_col):
+                if process_type == "init":
+                    dict_cell[(i, j)] = {
+                        "position_x": self.cell_size * i,
+                        "position_y": self.cell_size * j
+                    }
+                elif process_type == "update":
+                    pygame.draw.rect(screen, LIGHT_GREY, (self.cell_size * i, self.cell_size * j, self.cell_size, self.cell_size), self.cell_border)
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -124,6 +128,10 @@ boids_list = []
 for _ in range(NUM_BOIDS):
     boids_list.append(Boid())
 
+grid = Grid()
+grid.grid_logic(process_type="init")
+pprint(dict_cell)
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -131,9 +139,7 @@ while running:
             running = False
     
     screen.fill(BLACK) 
-
-    grid(WIDTH, HEIGHT, CELL_SIZE, 1)
-    pprint(dict_cell)
+    grid.grid_logic(process_type="update")
     
     for boid in boids_list:
         boid.movement()    
