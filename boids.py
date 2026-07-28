@@ -1,30 +1,30 @@
 import pygame 
 import random
 import math
+from pprint import pprint
 from pygame.math import Vector2
 
-pygame.init()
-WIDTH, HEIGHT = 1600, 800
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-clock = pygame.time.Clock()
-running = True
 
-# CONSTANTS
+# Physics/Boid forces
 NUM_BOIDS = 200
 BOIDS_SPEED = 1
 MAX_ACCELERATION = 2
 FRICTION = 0.85
-
 DETECTION_LIMIT = 100
 SEPERATION_FORCE = 1
 ALIGNEMENT_FORCE = 1
 COHESION_FORCE = 1
 
-boids_list = []
+# Dimensions
+WIDTH, HEIGHT = 1600, 800
+CELL_SIZE = DETECTION_LIMIT
+dict_cell = {}
 
-#COLORS
+# Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+LIGHT_GREY = (211, 211, 211)
+
 
 class Boid:
     def __init__(self):
@@ -100,8 +100,27 @@ class Boid:
             if coh.length() > 0:
                 coh.normalize_ip()
                 self.direction += coh * cohesion_strength            
-        
 
+
+def grid(row, col, cell_size, border):
+    row = int(row / cell_size)
+    col = int(col / cell_size)
+    
+    for i in range(row):
+        for j in range(col):
+            pygame.draw.rect(screen, LIGHT_GREY, (CELL_SIZE * i, CELL_SIZE * j, CELL_SIZE, CELL_SIZE), border)
+            dict_cell[(i, j)] = {
+                "position_x": CELL_SIZE * i,
+                "position_y": CELL_SIZE * j
+            }
+            
+
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+clock = pygame.time.Clock()
+running = True
+
+boids_list = []
 for _ in range(NUM_BOIDS):
     boids_list.append(Boid())
 
@@ -112,6 +131,9 @@ while running:
             running = False
     
     screen.fill(BLACK) 
+
+    grid(WIDTH, HEIGHT, CELL_SIZE, 1)
+    pprint(dict_cell)
     
     for boid in boids_list:
         boid.movement()    
