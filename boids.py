@@ -6,7 +6,7 @@ from pygame.math import Vector2
 
 
 # Physics/Boid forces
-NUM_BOIDS = 200
+NUM_BOIDS = 150
 BOIDS_SPEED = 1
 MAX_ACCELERATION = 2
 FRICTION = 0.85
@@ -24,7 +24,7 @@ dict_cell = {}
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-LIGHT_GREY = (211, 211, 211)
+DEEP_SLATE_GREY = (48, 50, 52)
 
 
 class Boid:
@@ -101,12 +101,13 @@ class Boid:
                 coh.normalize_ip()
                 self.direction += coh * cohesion_strength            
 
-class Grid():
+class Grid(Boid):
     def __init__(self):
         self.num_row = int(WIDTH / CELL_SIZE)
         self.num_col = int(HEIGHT / CELL_SIZE)
         self.cell_size = CELL_SIZE
         self.cell_border = CELL_BORDER
+        super().__init__()
 
     def grid_logic(self, process_type):
         for i in range(self.num_row):
@@ -117,7 +118,11 @@ class Grid():
                         "position_y": self.cell_size * j
                     }
                 elif process_type == "update":
-                    pygame.draw.rect(screen, LIGHT_GREY, (self.cell_size * i, self.cell_size * j, self.cell_size, self.cell_size), self.cell_border)
+                    pygame.draw.rect(screen, DEEP_SLATE_GREY, (self.cell_size * i, self.cell_size * j, self.cell_size, self.cell_size), self.cell_border)
+
+    def calculation(self):
+        pass
+                    
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
