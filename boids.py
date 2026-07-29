@@ -1,25 +1,27 @@
 import pygame 
 import random
 import math
-from pprint import pprint
 from pygame.math import Vector2
 
 
 # Physics/Boid forces
-NUM_BOIDS = 150
+NUM_BOIDS = 2000
 BOIDS_SPEED = 1
 MAX_ACCELERATION = 2
 FRICTION = 0.85
-DETECTION_LIMIT = 100
-SEPERATION_FORCE = 1
-ALIGNEMENT_FORCE = 1
-COHESION_FORCE = 1
+DETECTION_LIMIT = 50
+SEPERATION_FORCE = 1.2
+ALIGNEMENT_FORCE = 1.1
+COHESION_FORCE = 0.8
 
 # Dimensions
 WIDTH, HEIGHT = 1600, 800
 CELL_SIZE = DETECTION_LIMIT
 CELL_BORDER = 1
 dict_cell = {}
+neighbor_cells = [[(-1, -1), (0, -1), (1, -1)],
+                  [(-1, 0), (0, 0), (1, 0)],
+                  [(-1, 1), (0, 1), (1, 1)]]
 
 # Colors
 BLACK = (0, 0, 0)
@@ -27,20 +29,40 @@ WHITE = (255, 255, 255)
 DEEP_SLATE_GREY = (48, 50, 52)
 
 
-class Boid:
+class Grid():
     def __init__(self):
-        self.radius = 5
+        self.num_row = int(WIDTH / CELL_SIZE)
+        self.num_col = int(HEIGHT / CELL_SIZE)
+        self.cell_size = CELL_SIZE
+        self.cell_border = CELL_BORDER
+        self.surronding_cells = []
+
+    def grid_logic(self, process_type):
+        for i in range(self.num_row):
+            for j in range(self.num_col):
+                if process_type == "init":
+                    dict_cell[(i, j)] = {
+                        "position_x": self.cell_size * i,
+                        "position_y": self.cell_size * j,
+                        "boids": []
+                    }
+                elif process_type == "update":
+                    pygame.draw.rect(screen, DEEP_SLATE_GREY, (self.cell_size * i, self.cell_size * j, self.cell_size, self.cell_size), self.cell_border)
+
+class Boid(Grid):
+    def __init__(self):
+        super().__init__()
+        self.radius = 3
         self.acceleration = Vector2(0, 0)
         self.velocity = Vector2(0, 0)
         self.position = Vector2(random.randint(self.radius, WIDTH - self.radius), 
                                 random.randint(self.radius, HEIGHT - self.radius))
+
         self.direction = Vector2(0, 0)
         while self.direction == Vector2(0, 0):
           self.direction = Vector2(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))
-
           if self.direction.length() > 0:
               self.direction.normalize_ip()
-        
     
     def draw(self, screen, color):
         pygame.draw.circle(screen, color, (int(self.position.x), int(self.position.y)), self.radius)
@@ -65,6 +87,26 @@ class Boid:
         elif self.position.y > HEIGHT - self.radius:
             self.position.y -= HEIGHT
 
+    def boids_cell(self):
+        self.surronding_cells.clear()
+        cellX = int(self.position.x // self.cell_size)
+        cellY = int(self.position.y // self.cell_size)
+
+        boid_cellX = cellX % self.num_row
+        boid_cellY = cellY % self.num_col
+
+        dict_cell[(boid_cellX, boid_cellY)]["boids"].append(self)
+    
+        for row in neighbor_cells:
+            for x, y in row:
+                safe_x = (boid_cellX + x) % self.num_row
+                safe_y = (boid_cellY + y) % self.num_col
+
+                cell_boids = dict_cell[(safe_x, safe_y)]["boids"]
+                self.surronding_cells.extend(cell_boids)
+             
+            
+
     def physics(self, seperation_strength, alignement_strength, cohesion_strength, detection_limit):
         count = 0
         sep = Vector2(0, 0)
@@ -72,7 +114,7 @@ class Boid:
         coh = Vector2(0, 0)
         center_mass = Vector2(0, 0)
 
-        for neighbor in boids_list:
+        for neighbor in self.surronding_cells:
             if neighbor is not self:
                 diff = self.position - neighbor.position
                 distance = diff.length()
@@ -100,28 +142,6 @@ class Boid:
             if coh.length() > 0:
                 coh.normalize_ip()
                 self.direction += coh * cohesion_strength            
-
-class Grid(Boid):
-    def __init__(self):
-        self.num_row = int(WIDTH / CELL_SIZE)
-        self.num_col = int(HEIGHT / CELL_SIZE)
-        self.cell_size = CELL_SIZE
-        self.cell_border = CELL_BORDER
-        super().__init__()
-
-    def grid_logic(self, process_type):
-        for i in range(self.num_row):
-            for j in range(self.num_col):
-                if process_type == "init":
-                    dict_cell[(i, j)] = {
-                        "position_x": self.cell_size * i,
-                        "position_y": self.cell_size * j
-                    }
-                elif process_type == "update":
-                    pygame.draw.rect(screen, DEEP_SLATE_GREY, (self.cell_size * i, self.cell_size * j, self.cell_size, self.cell_size), self.cell_border)
-
-    def calculation(self):
-        pass
                     
 
 pygame.init()
@@ -135,7 +155,6 @@ for _ in range(NUM_BOIDS):
 
 grid = Grid()
 grid.grid_logic(process_type="init")
-pprint(dict_cell)
 
 running = True
 while running:
@@ -145,13 +164,17 @@ while running:
     
     screen.fill(BLACK) 
     grid.grid_logic(process_type="update")
+
+    for cell in dict_cell.values():
+        cell["boids"].clear()
     
     for boid in boids_list:
         boid.movement()    
         boid.wall_collision()
+        boid.boids_cell()
         boid.physics(SEPERATION_FORCE, ALIGNEMENT_FORCE, COHESION_FORCE, DETECTION_LIMIT)
         boid.draw(screen, WHITE)
-   
+
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
