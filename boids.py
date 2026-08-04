@@ -1,6 +1,5 @@
 import pygame 
 import random
-import math
 from pygame.math import Vector2
 
 
@@ -53,26 +52,25 @@ class Boid(Grid):
     def __init__(self):
         super().__init__()
         self.radius = 3
-        self.acceleration = Vector2(0, 0)
         self.velocity = Vector2(0, 0)
+        self.acceleration = Vector2(0, 0)
         self.position = Vector2(random.randint(self.radius, WIDTH - self.radius), 
                                 random.randint(self.radius, HEIGHT - self.radius))
 
-        self.direction = Vector2(0, 0)
-        while self.direction == Vector2(0, 0):
-          self.direction = Vector2(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))
-          if self.direction.length() > 0:
-              self.direction.normalize_ip()
+        while self.acceleration == Vector2(0, 0):
+          self.acceleration = Vector2(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))
+          if self.acceleration.length() > 0:
+              self.acceleration.normalize_ip()
     
     def draw(self, screen, color):
         pygame.draw.circle(screen, color, (int(self.position.x), int(self.position.y)), self.radius)
 
     def movement(self):
-        if self.direction.length() > MAX_ACCELERATION:
-            self.direction.normalize_ip()
-            self.direction *= MAX_ACCELERATION
+        if self.acceleration.length() > MAX_ACCELERATION:
+            self.acceleration.normalize_ip()
+            self.acceleration *= MAX_ACCELERATION
 
-        self.acceleration = self.direction * BOIDS_SPEED
+        self.acceleration *= BOIDS_SPEED
         self.velocity += self.acceleration
         self.velocity *= FRICTION
         self.position += self.velocity
@@ -122,7 +120,7 @@ class Boid(Grid):
                 if 0 < distance < detection_limit:
                     dispersion_force = diff.normalize() / distance
                     sep += dispersion_force
-                    align += neighbor.direction
+                    align += neighbor.acceleration
                     center_mass += neighbor.position
                     count += 1
 
@@ -130,18 +128,18 @@ class Boid(Grid):
             sep /= count
             if sep.length() > 0:
                 sep.normalize_ip()
-                self.direction += sep * seperation_strength
+                self.acceleration += sep * seperation_strength
 
             align /= count
             if align.length() > 0:
                 align.normalize_ip()
-                self.direction += align * alignement_strength
+                self.acceleration += align * alignement_strength
 
             center_mass /= count 
             coh = center_mass - self.position
             if coh.length() > 0:
                 coh.normalize_ip()
-                self.direction += coh * cohesion_strength            
+                self.acceleration += coh * cohesion_strength            
                     
 
 pygame.init()
