@@ -26,10 +26,9 @@ class SpatialGrid():
 
     def surronding_boids(self, cell_x, cell_y):
         surronding_boids = []
-        for x_offset, y_offset in NEIGHBOR_CELLS:
-            surronding_cell_x = (cell_x + x_offset) % self.num_rows
-            surronding_cell_y = (cell_y + y_offset) % self.num_cols
-            surronding_boids.extend(self.cells[(surronding_cell_x, surronding_cell_y)])
+        for neighbor_row in NEIGHBOR_CELLS:
+            for x_offset, y_offset in neighbor_row:
+                surronding_cell_x = (cell_x + x_offset) % self.num_rows
+                surronding_cell_y = (cell_y + y_offset) % self.num_cols
+                surronding_boids.extend(self.cells[(surronding_cell_x, surronding_cell_y)])
         return surronding_boids
-
-    

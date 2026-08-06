@@ -50,13 +50,13 @@ class Boid:
 
         for neighbor in neighbors:
             if neighbor != self:
-                distVec = self - neighbor
+                distVec = self.pos - neighbor.pos
                 distance = distVec.length()
 
-                if 0 < distance > DETECTION_LIMIT:
+                if 0 < distance < DETECTION_LIMIT:
                     sep += distVec.normalize() / distance
                     align += neighbor.accel
-                    center_mass += distVec
+                    center_mass += neighbor.pos
                     count += 1
 
         if count > 0:
