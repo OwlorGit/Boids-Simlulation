@@ -80,9 +80,4 @@ class Boid:
         cell_x = int(self.pos.x // CELL_SIZE) % grid.num_rows
         cell_y = int(self.pos.y // CELL_SIZE) % grid.num_cols
         grid.cells[(cell_x, cell_y)].append(self)
-        return cell_x, cell_y
-        
-                    
-                    
-        
-        
+        return cell_x, cell_y  

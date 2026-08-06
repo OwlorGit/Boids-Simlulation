@@ -1,5 +1,5 @@
 # Dimensions
-WIDTH, HEIGHT = 1600, 800
+WIDTH, HEIGHT = 2000, 1000
 
 # Physics / Boid forces
 NUM_BOIDS = 2000
