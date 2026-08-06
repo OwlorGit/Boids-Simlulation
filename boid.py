@@ -5,18 +5,48 @@ from pygame.math import Vector2
 
 class Boid:
     def __init__(self):
-        self.radius = 3
+        self.radius = 1
+        self.border = 1
+        self.v = 4
+        self.b = 5
         self.vel = Vector2(0, 0)
         self.accel = Vector2(0, 0)
-        self.pos = Vector2(random.randint(self.radius, WIDTH - self.radius),
-                                random.randint(self.radius, HEIGHT - self.radius))
 
+        self.pos = Vector2(random.randint(self.radius, WIDTH - self.radius),
+                        random.randint(self.radius, HEIGHT - self.radius))
+        
         while self.accel == Vector2(0, 0):
             self.accel = Vector2(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))
             if self.accel.length() > 0:
                 self.accel.normalize_ip()
 
+    def rotate(self):
+        point1 = Vector2(self.pos.x + 2 * self.v, self.pos.y)
+        point2 = Vector2(self.pos.x - self.v, self.pos.y - self.b)
+        point3 = Vector2(self.pos.x - self.v, self.pos.y + self.b)
+        self.points = [point1, point2, point3] 
+
+        if self.accel.length() > 0:
+            direction = self.accel.normalize()
+        else:
+            direction = Vector2(0, 0)
+
+        rotated_points = []
+        for p in self.points:
+            center_x = p[0] - self.pos.x
+            center_y = p[1] - self.pos.y
+
+            rotate_x = center_x * direction.x - center_y * direction.y + self.pos.x
+            rotate_y = center_x * direction.y + center_y * direction.x + self.pos.y
+
+            rotated_points.append((rotate_x, rotate_y))
+
+        return rotated_points
+        
+
     def draw(self, screen, color):
+        rotated_points = self.rotate()
+        pygame.draw.polygon(screen, color, rotated_points, self.border)
         pygame.draw.circle(screen, color, (int(self.pos.x), int(self.pos.y)), self.radius)
 
     def movement(self):
