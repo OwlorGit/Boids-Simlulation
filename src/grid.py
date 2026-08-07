@@ -1,5 +1,5 @@
 import pygame
-from config import WIDTH, HEIGHT, CELL_SIZE, CELL_BORDER, NEIGHBOR_CELLS, DEEP_SLATE_GREY
+from src.config import WIDTH, HEIGHT, CELL_SIZE, CELL_BORDER, NEIGHBOR_CELLS, DEEP_SLATE_GREY
 
 class SpatialGrid():
     def __init__(self):

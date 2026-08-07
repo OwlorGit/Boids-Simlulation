@@ -1,7 +1,7 @@
 import pygame
-from grid import SpatialGrid
-from boid import Boid
-from config import WIDTH, HEIGHT, NUM_BOIDS, BLACK, WHITE, LIGHT_BLUE
+from src.grid import SpatialGrid
+from src.boid import Boid
+from src.config import WIDTH, HEIGHT, NUM_BOIDS, BLACK, WHITE, LIGHT_BLUE
 
 class Simulation:
     def __init__(self):
