@@ -9,8 +9,8 @@ class Simulation:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Boid Simulation")
         self.clock = pygame.time.Clock()
-        self.running = False
         self.font = pygame.font.SysFont(None, 25)
+        self.running = False
 
         self.grid = SpatialGrid()
         self.boids_list = []
