@@ -19,8 +19,11 @@ NEIGHBOR_CELLS = [[(-1, -1), (0, -1), (1, -1)],
                   [(-1, 0), (0, 0), (1, 0)],
                   [(-1, 1), (0, 1), (1, 1)]]
 
-# Colors
+# Displays
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 DEEP_SLATE_GREY = (48, 50, 52)
 LIGHT_BLUE = (173, 216, 230)
+
+FONT_SYTLE = "Arial"
+FONT_SIZE = 12
