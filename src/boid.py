@@ -109,5 +109,9 @@ class Boid:
     def locate_in_grid(self, grid):
         cell_x = int(self.pos.x // CELL_SIZE) % grid.num_rows
         cell_y = int(self.pos.y // CELL_SIZE) % grid.num_cols
+
+        if (cell_x, cell_y) not in grid.cells:
+            grid.cells[(cell_x, cell_y)] = []
+
         grid.cells[(cell_x, cell_y)].append(self)
         return cell_x, cell_y  

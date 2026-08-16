@@ -6,12 +6,9 @@ class SpatialGrid():
         self.num_rows = int(WIDTH / CELL_SIZE)
         self.num_cols = int(HEIGHT / CELL_SIZE)
         self.cells = {}
-        self.reset()
 
     def reset(self):
-        for x in range(self.num_rows):
-            for y in range(self.num_cols):
-                self.cells[(x, y)] = []
+        self.cells.clear()
 
     def draw(self, screen):
         for x in range(self.num_rows):
@@ -30,5 +27,8 @@ class SpatialGrid():
             for x_offset, y_offset in neighbor_row:
                 surronding_cell_x = (cell_x + x_offset) % self.num_rows
                 surronding_cell_y = (cell_y + y_offset) % self.num_cols
-                surronding_boids.extend(self.cells[(surronding_cell_x, surronding_cell_y)])
+
+                if (surronding_cell_x, surronding_cell_y) in self.cells:
+                    surronding_boids.extend(self.cells[(surronding_cell_x, surronding_cell_y)])
+
         return surronding_boids
