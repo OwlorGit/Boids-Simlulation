@@ -1,7 +1,18 @@
 import pygame
 import random
-from src.config import WIDTH, HEIGHT, CELL_SIZE, FRICTION, MAX_ACCELERATION, BOIDS_SPEED, SEPERATION_FORCE, ALIGNEMENT_FORCE, COHESION_FORCE, DETECTION_LIMIT
 from pygame.math import Vector2 
+from src.config import (
+    WIDTH, 
+    HEIGHT, 
+    CELL_SIZE, 
+    FRICTION,
+    MAX_ACCELERATION, 
+    BOIDS_SPEED, 
+    SEPERATION_FORCE, 
+    ALIGNEMENT_FORCE, 
+    COHESION_FORCE, 
+    DETECTION_LIMIT
+)
 
 class Boid:
     def __init__(self):
