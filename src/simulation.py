@@ -1,6 +1,7 @@
 import pygame
 from src.grid import SpatialGrid
 from src.boid import Boid
+from src.stats import Stats
 from src.config import WIDTH, HEIGHT, NUM_BOIDS, BLACK, WHITE, LIGHT_BLUE
 
 class Simulation:
@@ -13,6 +14,7 @@ class Simulation:
         self.running = False
 
         self.grid = SpatialGrid()
+        self.stats = Stats(self.screen, self.clock)
         self.boids_list = []
         for _ in range(NUM_BOIDS):
             self.boids_list.append(Boid())
@@ -21,11 +23,6 @@ class Simulation:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-
-    def fps_tracker(self):
-        fps_text = str(int(self.clock.get_fps()))
-        fps_surface = self.font.render(f"FPS: {fps_text}", True, LIGHT_BLUE)
-        self.screen.blit(fps_surface, (10, 10))
 
     def update(self):
         self.grid.reset()
@@ -47,7 +44,7 @@ class Simulation:
         for boid in self.boids_list:
             boid.draw(self.screen, WHITE)
 
-        self.fps_tracker()
+        self.stats.display_info()
         pygame.display.flip()
 
     def run(self):
