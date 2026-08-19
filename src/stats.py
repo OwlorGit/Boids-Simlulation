@@ -16,18 +16,14 @@ class Stats:
         self.screen = screen
         self.font = pygame.font.SysFont(FONT_SYTLE, FONT_SIZE)
 
-    def fps_tracker(self):
-        fps_text = str(int(self.clock.get_fps()))
-        fps_surface = self.font.render(f"FPS: {fps_text}", True, LIGHT_BLUE)
-        self.screen.blit(fps_surface, (10, 10)) 
-
     def display_info(self):
         info = {
             "Entities": str(NUM_BOIDS),
             "Separation": str(SEPERATION_FORCE),
             "Alignement": str(ALIGNEMENT_FORCE),
             "Cohesion": str(COHESION_FORCE),
-            "Detection": str(DETECTION_LIMIT)
+            "Detection": str(DETECTION_LIMIT),
+            "FPS": str(int(self.clock.get_fps()))
         }
 
         spacing = 20
