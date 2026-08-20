@@ -19,11 +19,18 @@ NEIGHBOR_CELLS = [[(-1, -1), (0, -1), (1, -1)],
                   [(-1, 0), (0, 0), (1, 0)],
                   [(-1, 1), (0, 1), (1, 1)]]
 
-# Displays
+# Obstacles
+NUM_OBSTACLES = 25
+MIN_RADIUS = 10
+MAX_RADIUS = 100 
+
+# Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 DEEP_SLATE_GREY = (48, 50, 52)
+LIGHT_GREY = (211, 211, 211)
 LIGHT_BLUE = (173, 216, 230)
 
+# Fonts
 FONT_SYTLE = "Arial"
 FONT_SIZE = 12

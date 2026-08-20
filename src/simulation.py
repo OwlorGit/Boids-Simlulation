@@ -1,13 +1,16 @@
 import pygame
 from src.grid import SpatialGrid
 from src.boid import Boid
+from src.obstacle import Obstacle
 from src.stats import Stats
 from config import (
     WIDTH, 
     HEIGHT, 
     NUM_BOIDS, 
+    NUM_OBSTACLES, 
     BLACK, 
-    WHITE
+    WHITE,
+    LIGHT_GREY
 )
 
 class Simulation:
@@ -21,9 +24,9 @@ class Simulation:
 
         self.grid = SpatialGrid()
         self.stats = Stats(self.screen, self.clock)
-        self.boids_list = []
-        for _ in range(NUM_BOIDS):
-            self.boids_list.append(Boid())
+
+        self.boids_list = [Boid() for _ in range(NUM_BOIDS)]
+        self.obstacle_list = [Obstacle() for _ in range(NUM_OBSTACLES)]
 
     def events(self):
         for event in pygame.event.get():
@@ -49,6 +52,9 @@ class Simulation:
 
         for boid in self.boids_list:
             boid.draw(self.screen, WHITE)
+
+        for obstacle in self.obstacle_list:
+            obstacle.draw(self.screen, LIGHT_GREY)
 
         self.stats.display_info()
         pygame.display.flip()
