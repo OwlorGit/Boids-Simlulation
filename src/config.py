@@ -1,4 +1,4 @@
-# test
+# tests
 # Dimensions
 WIDTH, HEIGHT = 2000, 1000
 
