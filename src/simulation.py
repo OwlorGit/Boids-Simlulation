@@ -2,7 +2,7 @@ import pygame
 from src.grid import SpatialGrid
 from src.boid import Boid
 from src.stats import Stats
-from config import (
+from src.config import (
     WIDTH, 
     HEIGHT, 
     NUM_BOIDS, 

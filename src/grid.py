@@ -1,5 +1,5 @@
 import pygame
-from config import (
+from src.config import (
     WIDTH, 
     HEIGHT, 
     CELL_SIZE, 

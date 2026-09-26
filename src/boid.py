@@ -1,7 +1,7 @@
 import pygame
 import random
 from pygame.math import Vector2 
-from config import (
+from src.config import (
     WIDTH, 
     HEIGHT, 
     CELL_SIZE, 

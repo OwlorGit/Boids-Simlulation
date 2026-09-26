@@ -1,5 +1,5 @@
 import pygame
-from config import (
+from src.config import (
     NUM_BOIDS, 
     SEPERATION_FORCE, 
     ALIGNEMENT_FORCE, 
