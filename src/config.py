@@ -1,4 +1,4 @@
-# tests
+# connecting through ssh
 # Dimensions
 WIDTH, HEIGHT = 2000, 1000
 
