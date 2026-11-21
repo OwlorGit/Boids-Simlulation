@@ -8,8 +8,8 @@ from src.config import (
     FRICTION,
     MAX_ACCELERATION, 
     BOIDS_SPEED, 
-    SEPERATION_FORCE, 
-    ALIGNEMENT_FORCE, 
+    SEPARATION_FORCE, 
+    ALIGNMENT_FORCE, 
     COHESION_FORCE, 
     DETECTION_LIMIT
 )
@@ -104,12 +104,12 @@ class Boid:
             sep /= count 
             if sep.length() > 0:
                 sep.normalize_ip()
-                self.accel += sep * SEPERATION_FORCE
+                self.accel += sep * SEPARATION_FORCE
 
             align /= count
             if align.length() > 0:
                 align.normalize_ip()
-                self.accel += align * ALIGNEMENT_FORCE
+                self.accel += align * ALIGNMENT_FORCE
 
             center_mass /= count
             coh = center_mass - self.pos

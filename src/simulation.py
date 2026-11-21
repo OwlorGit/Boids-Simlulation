@@ -40,7 +40,7 @@ class Simulation:
             boid_cell_indices.append(cell_idx)
 
         for boid, (cell_x, cell_y) in zip(self.boids_list, boid_cell_indices):
-            neighbors = self.grid.surronding_boids(cell_x, cell_y)
+            neighbors = self.grid.surrounding_boids(cell_x, cell_y)
             boid.physics(neighbors)
 
     def draw(self):
